@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Job Finder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header -->
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-briefcase me-2 text-primary"></i>Job Search Results
+                </h1>
+                <p class="text-muted mb-0">Found {{ results|length }} matching jobs</p>
+            </div>
+            <div>
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Home
+                </a>
+                <a href="/profile" class="btn btn-outline-info ms-2">
+                    <i class="fas fa-user me-2"></i>Profile
+                </a>
+                <a href="/api/results" class="btn btn-outline-secondary ms-2" target="_blank">
+                    <i class="fas fa-download me-2"></i>JSON
+                </a>
+            </div>
+        </header>
+
+        {% if not results %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-inbox fa-4x text-muted mb-4"></i>
+                <h3>No Results Yet</h3>
+                <p class="text-muted">Upload a resume to start finding jobs</p>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>Upload Resume
+                </a>
+            </div>
+        </div>
+        {% else %}
+
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ results|length }}</h3>
+                        <p>Total Jobs</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>{{ results|map(attribute='company')|unique|list|length }}</h3>
+                        <p>Companies</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-info">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        {% set total_connections = namespace(count=0) %}
+                        {% for job in results %}
+                            {% set total_connections.count = total_connections.count + job.connections|length %}
+                        {% endfor %}
+                        <h3>{{ total_connections.count }}</h3>
+                        <p>Connections</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        {% set max_score = namespace(value=0) %}
+                        {% for job in results %}
+                            {% for role, score in job.role_matches.items() %}
+                                {% if score > max_score.value %}
+                                    {% set max_score.value = score %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endfor %}
+                        <h3>{{ max_score.value }}%</h3>
+                        <p>Best Match</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card filter-card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="searchInput" 
+                                   placeholder="Search jobs or companies...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="roleFilter">
+                            <option value="">All Roles</option>
+                            {% set roles = [] %}
+                            {% for job in results %}
+                                {% if job.search_role not in roles %}
+                                    {% set _ = roles.append(job.search_role) %}
+                                    <option value="{{ job.search_role }}">{{ job.search_role }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="sortBy">
+                            <option value="match">Sort by Match Score</option>
+                            <option value="connections">Sort by Connections</option>
+                            <option value="company">Sort by Company</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="hasConnections">
+                            <label class="form-check-label" for="hasConnections">
+                                Has Connections
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Cards -->
+        <div class="row" id="jobsContainer">
+            {% for job in results %}
+            <div class="col-lg-6 mb-4 job-card-wrapper" 
+                 data-title="{{ job.title|lower }}" 
+                 data-company="{{ job.company|lower }}"
+                 data-role="{{ job.search_role }}"
+                 data-connections="{{ job.connections|length }}">
+                <div class="card job-card h-100">
+                    <div class="card-body">
+                        <!-- Job Header -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h5 class="card-title mb-1">{{ job.title }}</h5>
+                                <p class="company-name mb-0">
+                                    <i class="fas fa-building me-2"></i>{{ job.company }}
+                                </p>
+                            </div>
+                            <span class="badge bg-secondary">{{ job.search_role }}</span>
+                        </div>
+
+                        <!-- Role Match Scores -->
+                        <div class="match-scores mb-3">
+                            <p class="small text-muted mb-2">
+                                <i class="fas fa-chart-bar me-1"></i>Role Match Scores
+                            </p>
+                            {% for role, score in job.role_matches.items() %}
+                            <div class="d-flex align-items-center mb-1">
+                                <span class="role-label">{{ role }}</span>
+                                <div class="progress flex-grow-1 mx-2" style="height: 8px;">
+                                    <div class="progress-bar 
+                                        {% if score >= 70 %}bg-success{% elif score >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                                        style="width: {{ score }}%"></div>
+                                </div>
+                                <span class="score-badge 
+                                    {% if score >= 70 %}score-high{% elif score >= 50 %}score-medium{% else %}score-low{% endif %}">
+                                    {{ score }}%
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <!-- Connections -->
+                        <div class="connections-section">
+                            <p class="small text-muted mb-2">
+                                <i class="fas fa-user-friends me-1"></i>Connections 
+                                <span class="badge bg-primary ms-1">{{ job.connections|length }}</span>
+                                {% if job.connection_tier_stats %}
+                                <span class="tier-summary ms-2">
+                                    {% if job.connection_tier_stats.tier_1_count > 0 %}
+                                    <span class="badge bg-success" title="Primary Alumni">🎓 {{ job.connection_tier_stats.tier_1_count }}</span>
+                                    {% endif %}
+                                    {% if job.connection_tier_stats.tier_2_count > 0 %}
+                                    <span class="badge bg-info" title="IIT Alumni">🏛️ {{ job.connection_tier_stats.tier_2_count }}</span>
+                                    {% endif %}
+                                    {% if job.connection_tier_stats.tier_3_count > 0 %}
+                                    <span class="badge bg-warning" title="Skilled Employee">💼 {{ job.connection_tier_stats.tier_3_count }}</span>
+                                    {% endif %}
+                                    {% if job.connection_tier_stats.tier_4_count > 0 %}
+                                    <span class="badge bg-secondary" title="Employee">👥 {{ job.connection_tier_stats.tier_4_count }}</span>
+                                    {% endif %}
+                                </span>
+                                {% endif %}
+                            </p>
+                            {% if job.connections %}
+                            <div class="connection-list">
+                                {% for person in job.connections %}
+                                <a href="{{ person.profile_link }}" target="_blank" class="connection-item">
+                                    <div class="connection-avatar tier-{{ person.tier|default(1) }}">
+                                        {{ person.name[0] }}
+                                    </div>
+                                    <div class="connection-info">
+                                        <span class="connection-name">{{ person.name }}</span>
+                                        <span class="connection-type">
+                                            {% if person.tier == 1 %}
+                                            <span class="badge bg-success badge-sm">IITH Alumni</span>
+                                            {% elif person.tier == 2 %}
+                                            <span class="badge bg-info badge-sm">IIT Alumni</span>
+                                            {% elif person.tier == 3 %}
+                                            <span class="badge bg-warning text-dark badge-sm">Skilled</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary badge-sm">Employee</span>
+                                            {% endif %}
+                                        </span>
+                                        {% if person.title %}
+                                        <span class="connection-role">{{ person.title }}</span>
+                                        {% endif %}
+                                        {% if person.quality_score %}
+                                        <span class="quality-score" title="Quality Score">
+                                            <i class="fas fa-star text-warning"></i> {{ person.quality_score|round|int }}
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="connection-confidence" title="Confidence: {{ person.confidence|default(50) }}%">
+                                        <div class="confidence-bar">
+                                            <div class="confidence-fill" style="width: {{ person.confidence|default(50) }}%"></div>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted small mb-0">
+                                <i class="fas fa-info-circle me-1"></i>No connections found at this company
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="card-footer bg-transparent">
+                        <a href="{{ job.link }}" target="_blank" class="btn btn-primary btn-sm w-100">
+                            <i class="fab fa-linkedin me-2"></i>View on LinkedIn
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Filter and search functionality
+        const searchInput = document.getElementById('searchInput');
+        const roleFilter = document.getElementById('roleFilter');
+        const sortBy = document.getElementById('sortBy');
+        const hasConnections = document.getElementById('hasConnections');
+        const jobsContainer = document.getElementById('jobsContainer');
+
+        function filterJobs() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedRole = roleFilter.value;
+            const onlyWithConnections = hasConnections.checked;
+
+            const cards = document.querySelectorAll('.job-card-wrapper');
+            
+            cards.forEach(card => {
+                const title = card.dataset.title;
+                const company = card.dataset.company;
+                const role = card.dataset.role;
+                const connections = parseInt(card.dataset.connections);
+
+                let show = true;
+
+                // Search filter
+                if (searchTerm && !title.includes(searchTerm) && !company.includes(searchTerm)) {
+                    show = false;
+                }
+
+                // Role filter
+                if (selectedRole && role !== selectedRole) {
+                    show = false;
+                }
+
+                // Connections filter
+                if (onlyWithConnections && connections === 0) {
+                    show = false;
+                }
+
+                card.style.display = show ? 'block' : 'none';
+            });
+        }
+
+        searchInput.addEventListener('input', filterJobs);
+        roleFilter.addEventListener('change', filterJobs);
+        hasConnections.addEventListener('change', filterJobs);
+
+        // Sort functionality (simplified - just reorders DOM)
+        sortBy.addEventListener('change', () => {
+            const cards = Array.from(document.querySelectorAll('.job-card-wrapper'));
+            const sortType = sortBy.value;
+
+            cards.sort((a, b) => {
+                if (sortType === 'connections') {
+                    return parseInt(b.dataset.connections) - parseInt(a.dataset.connections);
+                } else if (sortType === 'company') {
+                    return a.dataset.company.localeCompare(b.dataset.company);
+                }
+                // Default: by match (would need score data attribute)
+                return 0;
+            });
+
+            cards.forEach(card => jobsContainer.appendChild(card));
+        });
+    </script>
+</body>
+</html>

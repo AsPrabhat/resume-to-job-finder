@@ -1,0 +1,9 @@
+# Data Directory
+
+This directory stores:
+- Uploaded resumes (resume.pdf)
+- Analysis results (analysis_result.json)
+- Job search results (final_results.json)
+- Connection cache (connection_cache.json)
+
+These files are generated at runtime and excluded from version control.

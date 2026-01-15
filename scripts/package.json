@@ -1,0 +1,13 @@
+{
+  "name": "job-search-service",
+  "version": "1.0.0",
+  "main": "job_service.js",
+  "scripts": {
+    "start": "node job_service.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "linkedin-jobs-api": "^1.0.7"
+  }
+}

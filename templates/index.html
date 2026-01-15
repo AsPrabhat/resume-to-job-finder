@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume-to-Network Job Finder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="text-center py-5">
+            <div class="logo-container mb-4">
+                <i class="fas fa-briefcase logo-icon"></i>
+            </div>
+            <h1 class="display-4 fw-bold">Resume-to-Network Job Finder</h1>
+            <p class="lead text-muted">Upload your resume, discover matching jobs, and find alumni connections</p>
+        </header>
+
+        <!-- Main Card -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card main-card">
+                    <div class="card-body p-5">
+                        <!-- Upload Form -->
+                        <form id="uploadForm" enctype="multipart/form-data">
+                            <!-- File Upload Area -->
+                            <div class="upload-area mb-4" id="dropZone">
+                                <input type="file" id="resumeInput" name="resume" accept=".pdf" hidden>
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                    <h4>Drop your resume here</h4>
+                                    <p class="text-muted">or click to browse (PDF only)</p>
+                                    <span class="file-name" id="fileName"></span>
+                                </div>
+                            </div>
+
+                            <!-- Configuration Options -->
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        <i class="fas fa-search me-2"></i>Jobs per Role
+                                    </label>
+                                    <select class="form-select" name="jobs_per_role" id="jobsPerRole" aria-label="Jobs per role">
+                                        <option value="2">2 jobs</option>
+                                        <option value="3" selected>3 jobs</option>
+                                        <option value="5">5 jobs</option>
+                                        <option value="10">10 jobs</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        <i class="fas fa-users me-2"></i>Connections per Job
+                                    </label>
+                                    <select class="form-select" name="people_per_job" id="peoplePerJob" aria-label="Connections per job">
+                                        <option value="1">1 person</option>
+                                        <option value="2" selected>2 people</option>
+                                        <option value="3">3 people</option>
+                                        <option value="5">5 people</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">
+                                        <i class="fas fa-graduation-cap me-2"></i>Target University
+                                    </label>
+                                    <input type="text" class="form-control" name="university" 
+                                           id="university" value="IIT Hyderabad" placeholder="e.g., IIT Bombay">
+                                </div>
+                            </div>
+
+                            <!-- Job Search Filters (Collapsible) -->
+                            <div class="mb-4">
+                                <a class="btn btn-outline-secondary w-100 d-flex justify-content-between align-items-center" 
+                                   data-bs-toggle="collapse" href="#jobFilters" role="button" 
+                                   aria-expanded="false" aria-controls="jobFilters">
+                                    <span><i class="fas fa-filter me-2"></i>Advanced Job Filters</span>
+                                    <i class="fas fa-chevron-down"></i>
+                                </a>
+                                
+                                <div class="collapse" id="jobFilters">
+                                    <div class="card card-body mt-2 filter-card">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">
+                                                    <i class="fas fa-map-marker-alt me-2"></i>Location
+                                                </label>
+                                                <input type="text" class="form-control" name="location" 
+                                                       id="location" placeholder="e.g., Bangalore, Remote">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">
+                                                    <i class="fas fa-chart-line me-2"></i>Experience Level
+                                                </label>
+                                                <select class="form-select" name="experience_level" id="experienceLevel" aria-label="Experience level">
+                                                    <option value="">Auto-detect from resume</option>
+                                                    <option value="internship">Internship</option>
+                                                    <option value="entry_level">Entry Level (0-2 years)</option>
+                                                    <option value="associate">Associate (2-4 years)</option>
+                                                    <option value="mid_senior_level">Mid-Senior (5-8 years)</option>
+                                                    <option value="director">Director (10+ years)</option>
+                                                    <option value="executive">Executive</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">
+                                                    <i class="fas fa-clock me-2"></i>Job Type
+                                                </label>
+                                                <select class="form-select" name="job_type" id="jobType" aria-label="Job type">
+                                                    <option value="">All Types</option>
+                                                    <option value="full_time">Full-time</option>
+                                                    <option value="part_time">Part-time</option>
+                                                    <option value="contract">Contract</option>
+                                                    <option value="internship">Internship</option>
+                                                    <option value="temporary">Temporary</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">
+                                                    <i class="fas fa-home me-2"></i>Remote Filter
+                                                </label>
+                                                <select class="form-select" name="remote_filter" id="remoteFilter" aria-label="Remote filter">
+                                                    <option value="">All Locations</option>
+                                                    <option value="remote">Remote Only</option>
+                                                    <option value="on_site">On-site Only</option>
+                                                    <option value="hybrid">Hybrid Only</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">
+                                                    <i class="fas fa-calendar-alt me-2"></i>Date Posted
+                                                </label>
+                                                <select class="form-select" name="date_posted" id="datePosted" aria-label="Date posted">
+                                                    <option value="">Anytime</option>
+                                                    <option value="past_24_hours">Past 24 Hours</option>
+                                                    <option value="past_week">Past Week</option>
+                                                    <option value="past_month">Past Month</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">
+                                                    <i class="fas fa-dollar-sign me-2"></i>Minimum Salary
+                                                </label>
+                                                <select class="form-select" name="salary_range" id="salaryRange" aria-label="Minimum salary">
+                                                    <option value="">Any Salary</option>
+                                                    <option value="40000">$40,000+ / ₹3 LPA+</option>
+                                                    <option value="60000">$60,000+ / ₹5 LPA+</option>
+                                                    <option value="80000">$80,000+ / ₹7 LPA+</option>
+                                                    <option value="100000">$100,000+ / ₹8 LPA+</option>
+                                                    <option value="120000">$120,000+ / ₹10 LPA+</option>
+                                                    <option value="150000">$150,000+ / ₹12 LPA+</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
+                                <i class="fas fa-rocket me-2"></i>Start Analysis
+                            </button>
+                        </form>
+
+                        <!-- Progress Section (hidden by default) -->
+                        <div id="progressSection" class="mt-4" style="display: none;">
+                            <div class="progress-header d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0" id="phaseText">
+                                    <i class="fas fa-spinner fa-spin me-2"></i>Initializing...
+                                </h5>
+                                <span class="badge bg-primary" id="progressPercent">0%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 10px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                     id="progressBar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-muted mb-0" id="statusMessage">Starting pipeline...</p>
+                        </div>
+
+                        <!-- Error Alert (hidden by default) -->
+                        <div class="alert alert-danger mt-4" id="errorAlert" style="display: none;">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span id="errorMessage"></span>
+                        </div>
+
+                        <!-- Success Section (hidden by default) -->
+                        <div id="successSection" class="text-center mt-4" style="display: none;">
+                            <div class="success-icon mb-3">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h4>Analysis Complete!</h4>
+                            <p class="text-muted" id="successMessage">Found jobs with connections</p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="/profile" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-user me-2"></i>View Profile
+                                </a>
+                                <a href="/results" class="btn btn-success btn-lg">
+                                    <i class="fas fa-briefcase me-2"></i>View Jobs
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Cards -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="info-card">
+                            <i class="fas fa-file-alt"></i>
+                            <h6>AI Resume Analysis</h6>
+                            <p>Uses LLM to identify your best-fit roles</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-card">
+                            <i class="fas fa-search-dollar"></i>
+                            <h6>Smart Job Matching</h6>
+                            <p>Semantic scoring for accurate matches</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-card">
+                            <i class="fas fa-network-wired"></i>
+                            <h6>Alumni Connections</h6>
+                            <p>Find contacts at hiring companies</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="text-center py-4 mt-5">
+            <p class="text-muted mb-0">
+                <i class="fas fa-code me-2"></i>Resume-to-Network Job Finder
+            </p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // DOM Elements
+        const dropZone = document.getElementById('dropZone');
+        const resumeInput = document.getElementById('resumeInput');
+        const fileName = document.getElementById('fileName');
+        const uploadForm = document.getElementById('uploadForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        const phaseText = document.getElementById('phaseText');
+        const statusMessage = document.getElementById('statusMessage');
+        const errorAlert = document.getElementById('errorAlert');
+        const errorMessage = document.getElementById('errorMessage');
+        const successSection = document.getElementById('successSection');
+        const successMessage = document.getElementById('successMessage');
+
+        // Drag and drop handling
+        dropZone.addEventListener('click', () => resumeInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                resumeInput.files = files;
+                updateFileName(files[0].name);
+            }
+        });
+
+        resumeInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                updateFileName(e.target.files[0].name);
+            }
+        });
+
+        function updateFileName(name) {
+            fileName.textContent = name;
+            fileName.style.display = 'block';
+            dropZone.classList.add('has-file');
+        }
+
+        // Form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!resumeInput.files.length) {
+                alert('Please select a resume PDF file');
+                return;
+            }
+
+            const formData = new FormData(uploadForm);
+
+            // Reset UI
+            errorAlert.style.display = 'none';
+            successSection.style.display = 'none';
+            progressSection.style.display = 'block';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Start polling for status
+                    pollStatus();
+                } else {
+                    showError(data.error || 'Upload failed');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        });
+
+        function pollStatus() {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch('/status');
+                    const status = await response.json();
+
+                    // Update progress
+                    progressBar.style.width = status.progress + '%';
+                    progressPercent.textContent = Math.round(status.progress) + '%';
+                    phaseText.innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>${status.phase}`;
+                    statusMessage.textContent = status.message;
+
+                    if (status.error) {
+                        clearInterval(interval);
+                        showError(status.error);
+                        return;
+                    }
+
+                    if (!status.running && status.progress === 100) {
+                        clearInterval(interval);
+                        showSuccess(status.message);
+                    }
+                } catch (error) {
+                    console.error('Status poll error:', error);
+                }
+            }, 1000);
+        }
+
+        function showError(message) {
+            progressSection.style.display = 'none';
+            errorAlert.style.display = 'block';
+            errorMessage.textContent = message;
+            resetSubmitButton();
+        }
+
+        function showSuccess(message) {
+            progressSection.style.display = 'none';
+            successSection.style.display = 'block';
+            successMessage.textContent = message;
+            resetSubmitButton();
+        }
+
+        function resetSubmitButton() {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-rocket me-2"></i>Start Analysis';
+        }
+    </script>
+</body>
+</html>

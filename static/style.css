@@ -1,0 +1,669 @@
+/* ===== Global Styles ===== */
+:root {
+    --primary-color: #0d6efd;
+    --primary-dark: #0b5ed7;
+    --success-color: #198754;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ===== Header Styles ===== */
+.logo-container {
+    width: 80px;
+    height: 80px;
+    background: var(--bg-gradient);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: var(--card-shadow);
+}
+
+.logo-icon {
+    font-size: 2.5rem;
+    color: white;
+}
+
+/* ===== Main Card ===== */
+.main-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+}
+
+/* ===== Upload Area ===== */
+.upload-area {
+    border: 3px dashed #dee2e6;
+    border-radius: 16px;
+    padding: 3rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    background: #fafbfc;
+}
+
+.upload-area:hover {
+    border-color: var(--primary-color);
+    background: #f0f7ff;
+}
+
+.upload-area.drag-over {
+    border-color: var(--primary-color);
+    background: #e6f0ff;
+    transform: scale(1.02);
+}
+
+.upload-area.has-file {
+    border-color: var(--success-color);
+    background: #f0fff4;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #adb5bd;
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.upload-area:hover .upload-icon {
+    color: var(--primary-color);
+    transform: translateY(-5px);
+}
+
+.file-name {
+    display: none;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: var(--success-color);
+    color: white;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+    background: var(--bg-gradient);
+    border: none;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: var(--transition);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.7;
+    transform: none;
+}
+
+/* ===== Progress Section ===== */
+.progress {
+    border-radius: 10px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: var(--bg-gradient);
+}
+
+/* ===== Filter Card ===== */
+.filter-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+}
+
+.filter-card .form-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.filter-card .form-select,
+.filter-card .form-control {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.filter-card .form-select:focus,
+.filter-card .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.15);
+}
+
+/* ===== Success Section ===== */
+.success-icon {
+    font-size: 4rem;
+    color: var(--success-color);
+}
+
+.success-icon i {
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ===== Info Cards ===== */
+.info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-shadow);
+}
+
+.info-card i {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 0.75rem;
+}
+
+.info-card h6 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.info-card p {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin: 0;
+}
+
+/* ===== Results Page Styles ===== */
+
+/* Stat Cards */
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--card-shadow);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+}
+
+.stat-icon i {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.stat-content h3 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-content p {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Filter Card */
+.filter-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Job Cards */
+.job-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-shadow);
+}
+
+.card-title {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.company-name {
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+/* Match Scores */
+.match-scores {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.role-label {
+    font-size: 0.8rem;
+    width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.score-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    min-width: 45px;
+    text-align: center;
+}
+
+.score-high {
+    background: #d4edda;
+    color: #155724;
+}
+
+.score-medium {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.score-low {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* Connections */
+.connections-section {
+    margin-top: 1rem;
+}
+
+.connection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.connection-item {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
+
+.connection-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.connection-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+}
+
+/* Tier-based avatar colors */
+.connection-avatar.tier-1 {
+    background: linear-gradient(135deg, #198754 0%, #20c997 100%);
+}
+
+.connection-avatar.tier-2 {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%);
+}
+
+.connection-avatar.tier-3 {
+    background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+}
+
+.connection-avatar.tier-4 {
+    background: linear-gradient(135deg, #6c757d 0%, #adb5bd 100%);
+}
+
+.connection-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.connection-name {
+    font-weight: 500;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.connection-type {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.connection-role {
+    font-size: 0.7rem;
+    color: #868e96;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-sm {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.4rem;
+}
+
+.quality-score {
+    font-size: 0.7rem;
+    color: #fd7e14;
+    font-weight: 500;
+}
+
+.connection-confidence {
+    width: 40px;
+    margin-right: 0.5rem;
+}
+
+.confidence-bar {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.confidence-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #198754, #20c997);
+    border-radius: 2px;
+}
+
+.tier-summary .badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.4rem;
+}
+
+.connection-item i {
+    color: #adb5bd;
+    font-size: 0.8rem;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 3rem;
+}
+
+/* ===== Profile Page Styles ===== */
+
+/* Profile Header Card */
+.profile-header-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--bg-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.profile-links a {
+    color: #6c757d;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.profile-links a:hover {
+    color: var(--primary-color);
+}
+
+.experience-badge {
+    text-align: center;
+    padding: 0.75rem 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+}
+
+.experience-badge .exp-number {
+    display: block;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+.experience-badge .exp-label {
+    font-size: 0.75rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.career-level-badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    border-radius: 20px;
+}
+
+/* Role Cards */
+.role-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.role-title {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.match-badge {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+}
+
+.skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.skill-tags .badge {
+    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 0.35rem 0.6rem;
+}
+
+/* Timeline */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -26px;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    border: 2px solid white;
+    box-shadow: 0 0 0 3px #e9ecef;
+}
+
+.timeline-content h6 {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.tech-tags .badge {
+    font-weight: 400;
+    font-size: 0.7rem;
+}
+
+/* Project Cards */
+.project-card {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    transition: var(--transition);
+}
+
+.project-card:hover {
+    background: #f0f4f8;
+    transform: translateY(-2px);
+}
+
+.project-card h6 {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* Insights Card */
+.insights-card {
+    border: 2px solid #ffc107;
+}
+
+.insights-card .card-header {
+    background: linear-gradient(135deg, #fff9e6 0%, #fff 100%);
+}
+
+/* Card improvements */
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    border-bottom: 1px solid #f0f0f0;
+    padding: 1rem 1.25rem;
+}
+
+.card-header h5 {
+    font-weight: 600;
+}
+
+/* Badge variants */
+.bg-success-subtle {
+    background-color: #d1e7dd !important;
+}
+
+.bg-warning-subtle {
+    background-color: #fff3cd !important;
+}
+
+.bg-primary-subtle {
+    background-color: #cfe2ff !important;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .upload-area {
+        padding: 2rem;
+    }
+    
+    .stat-card {
+        margin-bottom: 1rem;
+    }
+    
+    .role-label {
+        width: 80px;
+    }
+    
+    .profile-avatar {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+    
+    .experience-badge {
+        padding: 0.5rem 1rem;
+    }
+    
+    .experience-badge .exp-number {
+        font-size: 1.25rem;
+    }
+}

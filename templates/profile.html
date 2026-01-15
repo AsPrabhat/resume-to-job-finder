@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Analysis - Job Finder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
+</head>
+<body>
+    <div class="container py-4">
+        <!-- Header -->
+        <header class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-user-circle me-2 text-primary"></i>Profile Analysis
+                </h1>
+                <p class="text-muted mb-0">AI-powered resume insights</p>
+            </div>
+            <div>
+                <a href="/" class="btn btn-outline-primary">
+                    <i class="fas fa-home me-2"></i>Home
+                </a>
+                <a href="/results" class="btn btn-outline-success ms-2">
+                    <i class="fas fa-briefcase me-2"></i>View Jobs
+                </a>
+            </div>
+        </header>
+
+        {% if not analysis %}
+        <!-- Empty State -->
+        <div class="text-center py-5">
+            <div class="empty-state">
+                <i class="fas fa-user-slash fa-4x text-muted mb-4"></i>
+                <h3>No Profile Analysis Yet</h3>
+                <p class="text-muted">Upload a resume to see your profile analysis</p>
+                <a href="/" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>Upload Resume
+                </a>
+            </div>
+        </div>
+        {% else %}
+        
+        {% set resume = analysis.parsed_resume %}
+        {% set roles = analysis.suggested_roles %}
+        {% set insights = analysis.career_insights %}
+
+        <!-- Profile Header Card -->
+        <div class="card profile-header-card mb-4">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="profile-avatar">
+                            {{ resume.personal.name[0] if resume.personal.name else 'U' }}
+                        </div>
+                    </div>
+                    <div class="col">
+                        <h2 class="mb-1">{{ resume.personal.name or 'Unknown Candidate' }}</h2>
+                        <p class="text-muted mb-2">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{ resume.personal.location or 'Location not specified' }}
+                        </p>
+                        <div class="profile-links">
+                            {% if resume.personal.email %}
+                            <a href="mailto:{{ resume.personal.email }}" class="me-3">
+                                <i class="fas fa-envelope me-1"></i>{{ resume.personal.email }}
+                            </a>
+                            {% endif %}
+                            {% if resume.personal.linkedin %}
+                            <a href="{{ resume.personal.linkedin }}" target="_blank" class="me-3">
+                                <i class="fab fa-linkedin me-1"></i>LinkedIn
+                            </a>
+                            {% endif %}
+                            {% if resume.personal.github %}
+                            <a href="{{ resume.personal.github }}" target="_blank" class="me-3">
+                                <i class="fab fa-github me-1"></i>GitHub
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="experience-badge">
+                            <span class="exp-number">{{ resume.total_experience_years or 0 }}</span>
+                            <span class="exp-label">Years Exp</span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <span class="badge career-level-badge bg-primary">{{ resume.career_level or 'Entry' }} Level</span>
+                    </div>
+                </div>
+                {% if resume.summary %}
+                <div class="mt-3 pt-3 border-top">
+                    <p class="mb-0"><i class="fas fa-quote-left text-muted me-2"></i>{{ resume.summary }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left Column -->
+            <div class="col-lg-8">
+                <!-- Recommended Roles -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-bullseye text-primary me-2"></i>Recommended Roles</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for role in roles %}
+                        <div class="role-card {% if not loop.last %}mb-3{% endif %}">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="role-title mb-0">{{ role.role }}</h5>
+                                <span class="badge match-badge {% if role.match_percent >= 80 %}bg-success{% elif role.match_percent >= 60 %}bg-warning{% else %}bg-secondary{% endif %}">
+                                    {{ role.match_percent }}% Match
+                                </span>
+                            </div>
+                            <p class="text-muted mb-3">{{ role.reasoning }}</p>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-2">
+                                    <small class="text-success fw-bold">
+                                        <i class="fas fa-check-circle me-1"></i>Matching Skills
+                                    </small>
+                                    <div class="skill-tags mt-1">
+                                        {% for skill in role.matching_skills[:5] %}
+                                        <span class="badge bg-success-subtle text-success">{{ skill }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6 mb-2">
+                                    <small class="text-warning fw-bold">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Skills to Develop
+                                    </small>
+                                    <div class="skill-tags mt-1">
+                                        {% for skill in role.skills_to_develop[:3] %}
+                                        <span class="badge bg-warning-subtle text-warning">{{ skill }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-dollar-sign me-1"></i>Salary Range: <strong>{{ role.salary_range }}</strong>
+                                    </small>
+                                </div>
+                                <div class="col-md-6">
+                                    <small class="text-muted">
+                                        <i class="fas fa-chart-line me-1"></i>Growth: <strong>{{ role.growth_potential }}</strong>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Experience -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-briefcase text-primary me-2"></i>Work Experience</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if resume.experience %}
+                        <div class="timeline">
+                            {% for exp in resume.experience %}
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <h6 class="mb-1">{{ exp.title }}</h6>
+                                            <p class="text-primary mb-1">{{ exp.company }}</p>
+                                        </div>
+                                        <span class="badge bg-light text-dark">
+                                            {{ exp.start_date }} - {{ exp.end_date }}
+                                        </span>
+                                    </div>
+                                    {% if exp.highlights %}
+                                    <ul class="mb-2 small">
+                                        {% for highlight in exp.highlights[:3] %}
+                                        <li>{{ highlight }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                    {% if exp.technologies_used %}
+                                    <div class="tech-tags">
+                                        {% for tech in exp.technologies_used %}
+                                        <span class="badge bg-light text-dark">{{ tech }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">No work experience found in resume</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Projects -->
+                {% if resume.projects %}
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-code text-primary me-2"></i>Projects</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for project in resume.projects %}
+                            <div class="col-md-6 mb-3">
+                                <div class="project-card h-100">
+                                    <h6>{{ project.name }}</h6>
+                                    <p class="small text-muted mb-2">{{ project.description }}</p>
+                                    <div class="tech-tags">
+                                        {% for tech in project.technologies[:4] %}
+                                        <span class="badge bg-primary-subtle text-primary">{{ tech }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    {% if project.url %}
+                                    <a href="{{ project.url }}" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
+                                        <i class="fas fa-external-link-alt me-1"></i>View
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-lg-4">
+                <!-- Skills -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-cogs text-primary me-2"></i>Skills</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if resume.skills.technical %}
+                        <div class="mb-3">
+                            <h6 class="text-muted small mb-2">Technical Skills</h6>
+                            <div class="skill-tags">
+                                {% for skill in resume.skills.technical %}
+                                <span class="badge bg-primary">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if resume.skills.frameworks %}
+                        <div class="mb-3">
+                            <h6 class="text-muted small mb-2">Frameworks</h6>
+                            <div class="skill-tags">
+                                {% for skill in resume.skills.frameworks %}
+                                <span class="badge bg-info">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if resume.skills.tools %}
+                        <div class="mb-3">
+                            <h6 class="text-muted small mb-2">Tools & Platforms</h6>
+                            <div class="skill-tags">
+                                {% for skill in resume.skills.tools %}
+                                <span class="badge bg-secondary">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if resume.skills.soft_skills %}
+                        <div>
+                            <h6 class="text-muted small mb-2">Soft Skills</h6>
+                            <div class="skill-tags">
+                                {% for skill in resume.skills.soft_skills %}
+                                <span class="badge bg-success">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Education -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-graduation-cap text-primary me-2"></i>Education</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if resume.education %}
+                        {% for edu in resume.education %}
+                        <div class="{% if not loop.last %}mb-3 pb-3 border-bottom{% endif %}">
+                            <h6 class="mb-1">{{ edu.degree }}</h6>
+                            <p class="text-primary mb-1">{{ edu.institution }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>{{ edu.graduation_year }}
+                                {% if edu.gpa %} | <i class="fas fa-star me-1"></i>{{ edu.gpa }}{% endif %}
+                            </small>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="text-muted mb-0">No education details found</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Certifications -->
+                {% if resume.certifications %}
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-certificate text-primary me-2"></i>Certifications</h5>
+                    </div>
+                    <div class="card-body">
+                        {% for cert in resume.certifications %}
+                        <div class="{% if not loop.last %}mb-2 pb-2 border-bottom{% endif %}">
+                            <h6 class="mb-0">{{ cert.name }}</h6>
+                            <small class="text-muted">{{ cert.issuer }} • {{ cert.date }}</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Career Insights -->
+                {% if insights %}
+                <div class="card mb-4 insights-card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-lightbulb text-warning me-2"></i>Career Insights</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if insights.strengths %}
+                        <div class="mb-3">
+                            <h6 class="text-success small mb-2">
+                                <i class="fas fa-thumbs-up me-1"></i>Strengths
+                            </h6>
+                            <ul class="small mb-0">
+                                {% for item in insights.strengths %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        {% if insights.areas_for_improvement %}
+                        <div class="mb-3">
+                            <h6 class="text-warning small mb-2">
+                                <i class="fas fa-arrow-up me-1"></i>Areas to Improve
+                            </h6>
+                            <ul class="small mb-0">
+                                {% for item in insights.areas_for_improvement %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        {% if insights.recommended_certifications %}
+                        <div class="mb-3">
+                            <h6 class="text-info small mb-2">
+                                <i class="fas fa-award me-1"></i>Recommended Certifications
+                            </h6>
+                            <ul class="small mb-0">
+                                {% for item in insights.recommended_certifications %}
+                                <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        {% if insights.career_trajectory %}
+                        <div class="p-2 bg-light rounded">
+                            <h6 class="small mb-1">
+                                <i class="fas fa-route me-1"></i>Career Trajectory
+                            </h6>
+                            <p class="small mb-0">{{ insights.career_trajectory }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
