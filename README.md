@@ -32,7 +32,7 @@ Built as a project to help job seekers find opportunities and network with poten
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/AsPrabhat/resume-to-job-finder.git
+git clone https://github.com/AsPrabhat/resume-to-job-finder
 cd resume-to-job-finder
 ```
 
