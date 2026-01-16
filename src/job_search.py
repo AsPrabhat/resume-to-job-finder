@@ -1,7 +1,4 @@
-"""
-Job Search Module with Smart Query Building
-Uses LinkedIn Jobs API via Node.js microservice + optional fallback sources
-"""
+# job_search.py - searches for jobs using LinkedIn API
 
 import os
 import json
@@ -10,7 +7,7 @@ import subprocess
 from typing import Optional
 from dataclasses import dataclass
 
-# Configuration
+# config
 JOB_SERVICE_URL = os.getenv("JOB_SERVICE_URL", "http://localhost:3001")
 
 
