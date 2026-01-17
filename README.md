@@ -39,7 +39,7 @@ cd resume-to-job-finder
 **2. Set up Python virtual environment**
 ```bash
 # Create virtual environment
-python -m venv .venv
+cd resume-to-job-finder
 
 # Activate it (Windows)
 .venv\Scripts\activate
@@ -81,6 +81,7 @@ You should see: `Job search service running on http://localhost:3001`
 
 **Terminal 2 - Start the Flask web app:**
 ```bash
+cd resume-to-job-finder
 python app.py
 ```
 You should see: `Starting server at http://localhost:5000`
